@@ -239,10 +239,9 @@ constexpr auto invoke(Type T::*member, Self&& self, Args&&... args) noexcept(
 }
 /// Invokes the given pointer to a scalar member by reference
 template <typename T, typename Type, typename Self>
-constexpr auto
-invoke(Type T::*member,
-       Self&& self) noexcept(noexcept(std::forward<Self>(self).*member))
-    -> decltype(std::forward<Self>(self).*member) {
+constexpr auto invoke(Type T::*member, Self&& self) noexcept(noexcept(
+    std::forward<Self>(self).*member)) -> decltype(std::forward<Self>(self).*
+                                                   member) {
   return (std::forward<Self>(self).*member);
 }
 /// Invokes the given pointer to a scalar member by pointer
@@ -1183,16 +1182,12 @@ public:
   FU2_DETAIL_CXX14_CONSTEXPR erasure(std::true_type /*use_bool_op*/,
                                      T&& callable,
                                      Allocator&& allocator_ = Allocator{}) {
-    if (!!callable) {
-      vtable_t::init(vtable_,
-                     type_erasure::make_box(
-                         std::integral_constant<bool, Config::is_copyable>{},
-                         std::forward<T>(callable),
-                         std::forward<Allocator>(allocator_)),
-                     this->opaque_ptr(), capacity());
-    } else {
-      vtable_.set_empty();
-    }
+    vtable_t::init(vtable_,
+                   type_erasure::make_box(
+                       std::integral_constant<bool, Config::is_copyable>{},
+                       std::forward<T>(callable),
+                       std::forward<Allocator>(allocator_)),
+                   this->opaque_ptr(), capacity());
   }
 
   ~erasure() {
@@ -1828,12 +1823,10 @@ constexpr auto overload(T&&... callables) {
 }
 } // namespace fu2
 
-namespace std{
+namespace std {
 template <typename Config, typename Property, typename Alloc>
-struct uses_allocator<
-  ::fu2::detail::function<Config, Property>,
-  Alloc
-> : std::true_type {};
+struct uses_allocator<::fu2::detail::function<Config, Property>, Alloc>
+    : std::true_type {};
 } // namespace std
 
 #undef FU2_DETAIL_EXPAND_QUALIFIERS
